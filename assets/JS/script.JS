@@ -9,20 +9,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const ticketImpreso = document.getElementById('ticketImpreso');
     const ventasEfectivoEl = document.getElementById('ventasEfectivo');
     const ventasTransferenciaEl = document.getElementById('ventasTransferencia');
+    const ventasTransbankEl = document.getElementById('ventasTransbank');
     const totalVentasEl = document.getElementById('totalVentas');
     const cuerpoHistorial = document.getElementById('cuerpoHistorial');
-    
+
     // Inicializar valores desde localStorage o establecer valores predeterminados
     let numeroTicket = parseInt(localStorage.getItem('numeroTicket')) || 1;
     let ventasEfectivo = parseFloat(localStorage.getItem('ventasEfectivo')) || 0;
     let ventasTransferencia = parseFloat(localStorage.getItem('ventasTransferencia')) || 0;
+    let ventasTransbank = parseFloat(localStorage.getItem('ventasTransbank')) || 0;
     let historialVentas = JSON.parse(localStorage.getItem('historialVentas')) || [];
 
     // Mostrar valores iniciales en la interfaz
     numeroTicketEl.textContent = numeroTicket;
     ventasEfectivoEl.textContent = ventasEfectivo.toFixed(2);
     ventasTransferenciaEl.textContent = ventasTransferencia.toFixed(2);
-    totalVentasEl.textContent = (ventasEfectivo + ventasTransferencia).toFixed(2);
+    ventasTransbankEl.textContent = ventasTransbank.toFixed(2);
+    totalVentasEl.textContent = (ventasEfectivo + ventasTransferencia + ventasTransbank).toFixed(2);
 
     // Cargar historial de ventas en la tabla
     function cargarHistorialVentas() {
@@ -33,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>$${venta.montoTotal.toFixed(2)}</td>
                 <td>${venta.medioPago}</td>
                 <td>${venta.nombreCliente}</td>
-                <td>${venta.anulado ? 'Anulado' : 'Activo'}</td>
+                <td>${venta.estado}</td> <!-- Mostrar el estado -->
                 <td>
-                    ${venta.anulado ? '' : `<button class="btnAnular" data-ticket="${venta.numeroTicket}">Anular</button>`}
+                    ${venta.anulado ? 'Anulado' : `<img src="assets/IMG/eliminar.png" alt="Anular" class="btnAnular" data-ticket="${venta.numeroTicket}" style="cursor: pointer; width: 24px; height: 24px;">`}
                 </td>
             </tr>
         `).join('');
@@ -49,20 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
         productoDiv.innerHTML = `
             <select class="selectProducto">
                 <option value="1" data-precio="4500">cena ($4500)</option>
-                <option value="2" data-precio="800">Vaso bebida ($800)</option>
-                <option value="3" data-precio="5000">Bebida 3 Litros ($5000)</option>
+                <option value="2" data-precio="400">Vaso bebida ($400)</option>
+                <option value="3" data-precio="1000">Postres ($1000)</option>
                 <option value="4" data-precio="500">Café ($500)</option>
                 <option value="5" data-precio="500">Té ($500)</option>
-                <option value="6" data-precio="300">Sopaipillas ($1500)</option>
-                <option value="7" data-precio="500">Queque ($500)</option>
-                <option value="8" data-precio="800">Bebida ($800)</option>
-                <option value="9" data-precio="1000">Agua 500 CC ($1000)</option>
-                <option value="10" data-precio="1000">Cuchuflí ($1000)</option>
-                <option value="11" data-precio="1000">Jugo ($1000)</option>
-               
             </select>
             <input type="number" class="inputCantidad" min="1" value="1">
-            <span class="totalProducto">Total: $1500</span>
+            <span class="totalProducto">Total: $4500</span>
             <button type="button" class="btnEliminar">Eliminar</button>
         `;
         contenedorProductos.appendChild(productoDiv);
@@ -114,30 +110,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const medioPago = document.getElementById('selectMedioPago').value;
         const montoTotal = parseFloat(montoTotalEl.textContent);
 
+        // Obtener el estado seleccionado
+        const estado = document.getElementById('selectestado').value;
+
         // Acumulación de ventas
         if (medioPago === 'efectivo') {
             ventasEfectivo += montoTotal;
         } else if (medioPago === 'transferencia') {
             ventasTransferencia += montoTotal;
+        } else if (medioPago === 'transbank') {
+            ventasTransbank += montoTotal;
         }
 
         // Guardar en localStorage
         localStorage.setItem('ventasEfectivo', ventasEfectivo.toFixed(2));
         localStorage.setItem('ventasTransferencia', ventasTransferencia.toFixed(2));
+        localStorage.setItem('ventasTransbank', ventasTransbank.toFixed(2));
         localStorage.setItem('numeroTicket', numeroTicket + 1);
 
         // Actualizar desglose de ventas
         ventasEfectivoEl.textContent = ventasEfectivo.toFixed(2);
         ventasTransferenciaEl.textContent = ventasTransferencia.toFixed(2);
-        totalVentasEl.textContent = (ventasEfectivo + ventasTransferencia).toFixed(2);
+        ventasTransbankEl.textContent = ventasTransbank.toFixed(2);
+        totalVentasEl.textContent = (ventasEfectivo + ventasTransferencia + ventasTransbank).toFixed(2);
 
-        // Actualizar historial
+        // Crear objeto para historial
         const nuevaVenta = {
             numeroTicket: numeroTicket,
             productos,
             montoTotal,
             medioPago,
             nombreCliente,
+            estado, // Incluir el estado
             anulado: false
         };
         historialVentas.push(nuevaVenta);
@@ -147,12 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ticketImpreso.innerHTML = `
             <h3>Ticket N° ${numeroTicket}</h3>
             <p>Nombre del Cliente: ${nombreCliente}</p>
-            <p>Productos:</p>
+            <u>Detalle de la compra</u>
             <ul>
                 ${productos.map(producto => `<li>${producto}</li>`).join('')}
             </ul>
             <p>Total: $${montoTotal.toFixed(2)}</p>
             <p>Medio de Pago: ${medioPago}</p>
+            <p>Estado: ${estado}</p> <!-- Mostrar el estado en el ticket -->
         `;
 
         // Mostrar el ticket para impresión y ocultarlo después
@@ -184,10 +189,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     ventasEfectivo -= venta.montoTotal;
                 } else if (venta.medioPago === 'transferencia') {
                     ventasTransferencia -= venta.montoTotal;
+                } else if (venta.medioPago === 'transbank') {
+                    ventasTransbank -= venta.montoTotal;
                 }
+
                 // Guardar en localStorage
                 localStorage.setItem('ventasEfectivo', ventasEfectivo.toFixed(2));
                 localStorage.setItem('ventasTransferencia', ventasTransferencia.toFixed(2));
+                localStorage.setItem('ventasTransbank', ventasTransbank.toFixed(2));
 
                 // Marcar la venta como anulada
                 venta.anulado = true;
@@ -196,7 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Actualizar desglose de ventas
                 ventasEfectivoEl.textContent = ventasEfectivo.toFixed(2);
                 ventasTransferenciaEl.textContent = ventasTransferencia.toFixed(2);
-                totalVentasEl.textContent = (ventasEfectivo + ventasTransferencia).toFixed(2);
+                ventasTransbankEl.textContent = ventasTransbank.toFixed(2);
+                totalVentasEl.textContent = (ventasEfectivo + ventasTransferencia + ventasTransbank).toFixed(2);
 
                 // Actualizar historial de ventas
                 cargarHistorialVentas();
@@ -213,7 +223,72 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Función para exportar el historial de ventas a CSV
+    function exportarHistorialVentas() {
+        const encabezados = ['Ticket', 'Productos', 'Total', 'Medio de Pago', 'Nombre del Cliente', 'Estado','Anulado'];
+        const filasCSV = [];
+
+        // Agregar encabezados
+        filasCSV.push(encabezados.join(','));
+
+        // Agregar filas de datos desde historialVentas
+        historialVentas.forEach(venta => {
+            const estadoCSV = venta.estado === 'pagado'?'Pagado':'Pendiente';
+            const fila = [
+                venta.numeroTicket,
+                venta.productos.join(' | '), // Productos separados por " | "
+                venta.montoTotal.toFixed(2),
+                venta.medioPago,
+                venta.nombreCliente,
+                estadoCSV,
+                venta.anulado ? 'Si' : 'No' // Estado de la venta
+            ];
+            filasCSV.push(fila.join(','));
+        });
+
+        // Generar archivo CSV
+        const cadenaCSV = filasCSV.join('\n');
+        const blob = new Blob([cadenaCSV], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'historial_ventas.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Vincular el botón a la función de exportación
+    document.getElementById('exportar-btn').addEventListener('click', exportarHistorialVentas);
+
+//estro es para el navBar
+    document.addEventListener('DOMContentLoaded', () => {
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+      
+        // Toggle navbar on mobile
+        hamburger.addEventListener('click', () => {
+          navLinks.classList.toggle('show');
+      
+          // Animation for hamburger icon
+          hamburger.classList.toggle('open');
+        });
+      
+        // Close menu when a link is clicked
+        navLinks.addEventListener('click', (e) => {
+          if (e.target.tagName === 'A') {
+            navLinks.classList.remove('show');
+            hamburger.classList.remove('open');
+          }
+        });
+      });
+
+      
+      
+
 });
+
 
 
 

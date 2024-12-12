@@ -8,6 +8,7 @@
   <style>
     /* Estilos adicionales para el historial */
     #historialVentas {
+      
       margin-top: 20px;
     }
     #historialVentas table {
@@ -42,27 +43,62 @@
   </style>
 </head>
 <body>
-
+  <header>
+    
+    <nav class="navbar">
+      <div class="logo">
+        <a href="#"><img src="assets/IMG/logo.png" alt="" height="50px" width="50px"></a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#ventas">Ventas</a></li>
+        <li><a href="#registro">Registro</a></li>
+        <li><a href="#historial">Historial</a></li>
+        
+      </ul>
+      <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+  
   <div class="contenedor">
-   <img src="assets/CSS/cafe.png" alt="café" height="150px" width="150px">  
+
+
+    <section id="ventas">
+   <img src="assets/IMG/cafe.png" alt="café" height="150px" width="150px">  
    <h1>Café Concert CCRN</h1>
 
     <!-- Sección de desglose de ventas -->
     <div class="desgloseVentas no-imprimir" id="desgloseVentas">
-      <h2>Desglose de Ventas</h2>
-      <p>Ventas en Efectivo: $<span id="ventasEfectivo">0.00</span></p>
-      <p>Ventas con Transferencias: $<span id="ventasTransferencia">0.00</span></p>
-      <p>Total de Ventas: $<span id="totalVentas">0.00</span></p>
+      <h2><img src="assets/IMG/detalle.png" alt="detalle" height="50px" width="50px"> Desglose de Ventas</h2>
+      <p>Total Efectivo: $<span id="ventasEfectivo">0.00</span></p>
+      <p>Total Transferencias: $<span id="ventasTransferencia">0.00</span></p>
+      <p>Total Transbank: $<span id="ventasTransbank">0.00</p>
+      <p>ventas Totales: $<span id="totalVentas">0.00</span></p>
+      <img src="assets/IMG/exportar.png" alt="" id="exportar-btn">
     </div>
+  </section>
 
+    <br><br>
     <!-- Formulario para ticket -->
+    
+<section id="registro">
+
     <form id="formularioTicket" class="no-imprimir">
       <div id="contenedorProductos"></div>
       <button type="button" class="btn" id="agregarProducto">Añadir Producto</button><br>
+      <h2>Registro Cliente</h2>
       <div class="totalCompra">Total de la Compra: $<span id="montoTotal">0</span></div><br>
       <div class="numeroTicket">Número de Ticket: <span id="numeroTicket">1</span></div><br>
       
+      
+
+
+
       <!-- Medio de pago y nombre del cliente -->
+       
       <div class="medioPago">
         <label for="nombreCliente">Nombre del Cliente:</label>
         <input type="text" id="nombreCliente" placeholder="Ingrese el nombre">
@@ -71,19 +107,33 @@
         <select id="selectMedioPago">
           <option value="efectivo">Efectivo</option>
           <option value="transferencia">Transferencia Bancaria</option>
+          <option value="transbank">Transbank / Débito</option>
+        </select>
+
+        <label for="selectestado">Estado:</label>
+        <select id="selectestado">
+          <option value="pagado">Pagado</option>
+          <option value="pendiente">Pendiente</option>
+          
+          
         </select>
       </div>
       
       <button type="submit" class="btn">Generar Ticket</button>
     </form>
+  </section>
+
 
     <!-- Sección para mostrar el ticket impreso -->
     <div id="ticketImpreso" class="imprimir" style="display: none;">
       <h2>Detalle del Ticket</h2>
       <div id="detalleVenta"></div>
     </div>
+   
 
     <!-- Sección para mostrar el historial de ventas -->
+     
+     <section id="#historial">
     <div id="historialVentas" class="no-imprimir">
       <h2>Historial de Ventas</h2>
       <table>
@@ -103,7 +153,14 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
+
+  
+  
+
+  
+     </div>
+  
 
   <script src="assets/JS/script.js"></script>
 
